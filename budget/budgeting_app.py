@@ -38,10 +38,10 @@ class Category:
 
     def check_funds(self, amount: float) -> bool:
         return self.balance >= amount
-    
+
 
     def __str__(self):
-        title = f'{self.name:*^30}\n'
+        title = f'\n\n{self.name:*^30}\n'
         items = ''
         for i, string in enumerate(self.ledger):
             description = f'{string["description"]}'[:23].ljust(23)
@@ -51,9 +51,3 @@ class Category:
         return title + items + total
 
 
-food = Category('food')
-food.deposit(1000, 'deposit')
-food.withdraw(10.15, 'groceries')
-clothing = Category('clothing')
-food.transfer(50, clothing)
-print(food)
