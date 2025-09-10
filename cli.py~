@@ -34,9 +34,11 @@ def safe_float(prompt):
 
 def load_categories():
     if not os.path.exists(Data_File):
+        print('[Debug] No data.json found')
         return {}
     with open(Data_File, 'r') as f:
         data = json.load(f)
+    print('[Debug] Loaded data: ', data)
     categories = {}
     for name, cat_data in data.items():
         categories[name] = Category.from_dict(cat_data)
@@ -47,6 +49,7 @@ def save_categories(categories):
     data = {name: cat.to_dict() for name, cat in categories.items()}
     with open(Data_File, 'w') as f:
         json.dump(data, f, indent=2)
+    print('[Debug] Saved data: ', data)
 
 
 def main():

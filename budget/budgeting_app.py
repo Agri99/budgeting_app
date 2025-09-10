@@ -40,6 +40,28 @@ class Category:
         return self.balance >= amount
 
 
+    def to_dict(self):
+        '''
+            Convert Category into serializable dict.
+        '''
+        return {
+            'name': self.name,
+            'balance': self.balance,
+            'ledger': self.ledger
+                }
+
+
+    @classmethod
+    def from_dict(cls, data):
+        '''
+            Rebuild Category from saved dict.
+        '''
+        cat = cls(data['name'])
+        cat.balance = data['balance']
+        cat.ledger = data['ledger']
+        return cat
+
+
     def __str__(self):
         title = f'\n\n{self.name:*^30}\n'
         items = ''
