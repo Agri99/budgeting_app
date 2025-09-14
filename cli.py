@@ -7,11 +7,16 @@ from budget.budgeting_app import Category
 Data_File = 'data.json'
 
 
+def normalize_name(name:str) -> str:
+    return name.strip().lower()
+
+
 def find_category(categories, name):
-    '''
-        Return Category object or None (case-sensitive).
-    '''
-    return categories.get(name)
+    if not name:
+        return None
+
+    # Normalize everything to lowercase
+    return categories.get(normalize_name(name))
 
 
 def print_menu():
@@ -35,8 +40,13 @@ def safe_float(prompt):
 def load_categories():
     if not os.path.exists(Data_File):
         return {}
-    with open(Data_File, 'r') as f:
-        data = json.load(f)
+
+    try:
+        with open(Data_File, 'r') as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        return {}
+
     categories = {}
     for name, cat_data in data.items():
         categories[name] = Category.from_dict(cat_data)
@@ -45,6 +55,9 @@ def load_categories():
 
 def save_categories(categories):
     data = {name: cat.to_dict() for name, cat in categories.items()}
+    if os.path.exists(Data_File):
+        os.replace(Data_File, Data_File + '.bak') # Create backup
+
     with open(Data_File, 'w') as f:
         json.dump(data, f, indent=2)
 
@@ -61,17 +74,20 @@ def main():
             if not name:
                 print('Name cannot be empty.')
                 continue
-            if name in categories:
+
+            key = normalize_name(name)
+
+            if key in categories:
                 print(f'Category "{name}" already exist.')
             else:
-                categories[name] = Category(name)
+                categories[name.lower()] = Category(name)
                 print(f'Created category "{name}".')
 
         elif choice == '2':
             name = input('Category name: ').strip()
             cat = find_category(categories, name)
             if not cat:
-                print('Category not found.')
+                print('Category not found. Available: ', [c.name for c in categories.values()])
                 continue
             amount = safe_float('Enter deposit amount: ')
             if amount is None:
@@ -85,7 +101,7 @@ def main():
             cat = find_category(categories, name)
 
             if not cat:
-                print('Category not found.')
+                print('Category not found. Available: ', [c.name for c in categories.values()])
                 continue
             amount = safe_float('Enter withdraw amount: ')
             if amount is None:
@@ -100,6 +116,12 @@ def main():
         elif choice == '4':
             src = input('\nSource category: ').strip()
             dst = input('Destination category: ').strip()
+            if not src:
+                print(f'Source category "{src}" not found. Available: {list(category.keys())}')
+                continue
+            if not dst:
+                print(f'Destination category "{dst}" not found. Available: {list(category.keys())}')
+                continue
             if src not in categories or dst not in categories:
                 print('Source or Destination not available.')
                 continue
@@ -123,7 +145,7 @@ def main():
             else:
                 cat = categories.get(name)
                 if not cat:
-                    print('Category not found.')
+                    print('Category not found. Available: ', [c.name for c in categories.values()])
                 else:
                     print(cat)
 
