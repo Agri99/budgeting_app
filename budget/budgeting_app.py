@@ -1,4 +1,7 @@
+from .exceptions import InsufficientFundsError, CategoryExistsError
+
 class Category:
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.balance = 0
@@ -6,6 +9,13 @@ class Category:
 
 
     def deposit(self, amount: float, description: str) -> None:
+        """
+        Add money to the category ledger
+
+        Args:
+            amount (float): The amount to deposit
+            description (str): Optional description of the deposit
+        """
         self.ledger.append({
                     'amount': amount,
                     'description': description
@@ -14,6 +24,13 @@ class Category:
 
 
     def withdraw(self, amount: float, description: str) -> bool:
+        """
+        Withdraw money from category ledger
+
+        Args:
+            amount (float): The amount to withdraw
+            description (str): Optional description of withdrawing
+        """
         if self.check_funds(amount):
             self.ledger.append({
                         'amount': -amount,
@@ -21,14 +38,26 @@ class Category:
                         })
             self.balance -= amount
             return True
-        return False
+        raise InsufficientFundsError(
+            f'Cannot withdraw {amount:.2f}, balance is only {self.balance:.2f}'
+        )
 
 
     def get_balance(self) -> float:
+        """
+        Check total balance from category ledger
+        """
         return self.balance
 
 
     def transfer(self, amount: float, other_categories) -> bool:
+        """
+        Transfer amount of balance from one category to another
+
+        Args:
+            amount (float): The amount to transfer
+            other_categories: The destination category
+        """
         if self.check_funds(amount):
             self.withdraw(amount, f'Transfer to {other_categories.name}')
             other_categories.deposit(amount, f'Transfer from {self.name}')
@@ -37,6 +66,9 @@ class Category:
 
 
     def check_funds(self, amount: float) -> bool:
+        """
+        Check if the balance is enough to be withdraw / transfer
+        """
         return self.balance >= amount
 
 

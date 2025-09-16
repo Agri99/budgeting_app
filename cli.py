@@ -2,6 +2,7 @@ import sys
 import json
 import os
 from budget.budgeting_app import Category
+from budget.exceptions import InsufficientFundsError
 
 
 Data_File = 'data.json'
@@ -107,11 +108,11 @@ def main():
             if amount is None:
                 continue
             desc = input('Enter description (optional): ')
-            ok = cat.withdraw(amount, desc)
-            if ok:
+            try:
+                cat.withdraw(amount, desc)
                 print(f'\n~~Withdraw {amount:.2f} from {name}~~')
-            else:
-                print('Insufficient funds.')
+            except InsufficientFundsError as e:
+                print(f'[ERROR] {e}')
 
         elif choice == '4':
             src = input('\nSource category: ').strip()
@@ -128,11 +129,11 @@ def main():
             amount = safe_float('Enter transfer amount: ')
             if amount is None:
                 continue
-            ok = categories[src].transfer(amount, categories[dst])
-            if ok:
+            try:
+                categories[src].transfer(amount, categories[dst])
                 print(f'\n~~Transferred {amount:.2f} from {src} to {dst}.~~')
-            else:
-                print(f'\nTransfer failed: insufficient funds.')
+            except InsufficientFundsError as e:
+                print(f'[ERROR] {e}')
 
         elif choice == '5':
             name = input('\nCategory name (or "all"): ').strip()
