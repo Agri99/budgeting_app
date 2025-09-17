@@ -9,10 +9,16 @@ Data_File = 'data.json'
 
 
 def normalize_name(name:str) -> str:
+    """
+    Sanitize and Normalize name into lowercase
+    """
     return name.strip().lower()
 
 
-def find_category(categories, name):
+def find_category(categories, name) -> dict:
+    """
+    Find if categories name exists
+    """
     if not name:
         return None
 
@@ -20,7 +26,10 @@ def find_category(categories, name):
     return categories.get(normalize_name(name))
 
 
-def print_menu():
+def print_menu() -> None:
+    """
+    CLI Menu
+    """
     print('\n==Budget App==')
     print('1) Create Ledger')
     print('2) Deposit')
@@ -30,7 +39,10 @@ def print_menu():
     print('0) Exit\n')
 
 
-def safe_float(prompt):
+def safe_float(prompt) -> float:
+    """
+    Check if the input is number and convert it into float
+    """
     try:
         return float(input(prompt))
     except ValueError:
@@ -38,7 +50,10 @@ def safe_float(prompt):
         return None
 
 
-def load_categories():
+def load_categories() -> dict:
+    """
+    Load categories ledger if exists
+    """
     if not os.path.exists(Data_File):
         return {}
 
@@ -54,7 +69,10 @@ def load_categories():
     return categories
 
 
-def save_categories(categories):
+def save_categories(categories) -> None:
+    """
+    Save new ledger into JSON file and backup the old one
+    """
     data = {name: cat.to_dict() for name, cat in categories.items()}
     if os.path.exists(Data_File):
         os.replace(Data_File, Data_File + '.bak') # Create backup
@@ -157,6 +175,8 @@ def main():
         
         else:
             print('[!] Invalid Option.')
+
+        input('Press ENTER to continue...')
 
 
 if __name__ == '__main__':
